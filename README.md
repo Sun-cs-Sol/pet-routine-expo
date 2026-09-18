@@ -41,8 +41,6 @@ npm run typecheck        # equivale a `npx tsc --noEmit`
 npm run pratica:tela     # roda src/tela-pet.ts via tsx
 ```
 
-> ⚠️ **O `typecheck` falha de propósito enquanto os TODOs não estiverem resolvidos.** Cada erro reportado aponta para um `TODO` que ainda falta preencher — é esse o critério de pronto. Alguns blocos marcados como *verificação* precisam **falhar** ao serem descomentados; não os apague.
-
 ## Próximos passos (exercícios)
 
 Os `TODO` deixados no código apontam para os exercícios de `exercises.md` de cada aula. Resolva-os na ordem em que aparecem e mantenha um commit por exercício (ou por bloco), para que o histórico da branch sirva de evidência de progresso.
