@@ -122,7 +122,9 @@ void parcial;
 //   Acrescente o campo `microchip: string` à interface `Pet`.
 //   Quantos dos três tipos derivados você precisou editar à mão?
 //
-//   Resposta: 0. NovoPet, ResumoPet e AtualizacaoPet são derivados de Pet
-//   com Omit/Pick/Partial, então o novo campo `microchip` se propaga
-//   automaticamente para eles sem edição manual.
+//   Resposta: 0, nenhum. Testei adicionando o campo e rodando o tsc:
+//   os três tipos são derivados de Pet com Omit/Pick/Partial, então o
+//   campo novo entra sozinho neles. Só deu erro em quem já tinha um
+//   objeto pronto sem o campo (o MOCK e o exemplo `novo`), o que faz
+//   sentido.
 // ============================================================

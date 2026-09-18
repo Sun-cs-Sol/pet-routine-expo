@@ -11,19 +11,15 @@
 //   uma linha cada, antes de entregar.
 //
 //   1. Qual estado impossível a união discriminada torna não representável?
-//      R: Um estado 'carregando' que já viesse com `dados` de sucesso ou
-//      com `mensagem` de erro. Como cada variante só tem os campos que
-//      lhe pertencem, é impossível montar um objeto que esteja carregando
-//      e, ao mesmo tempo, tenha dados prontos ou uma mensagem de erro.
+//      R: Não dá pra ter um estado "carregando" com dados ou mensagem de
+//      erro junto, porque cada variante só tem os campos dela mesma.
 //   2. Por que `carregar()` captura a exceção em vez de deixá-la subir?
-//      R: Porque o serviço pode lançar um `Error` (via SIMULAR_ERRO), e a
-//      tela precisa de um resultado previsível para exibir — o `try/catch`
-//      transforma essa falha em um `EstadoTela` do tipo 'erro' em vez de
-//      deixar a exceção estourar e derrubar quem chamou a função.
+//      R: Porque buscarPetDoUsuario pode lançar erro (SIMULAR_ERRO) e eu
+//      não quero que isso quebre quem chamou a função, então transformo
+//      em EstadoTela erro e sigo o fluxo normal.
 //   3. Uma decisão de modelagem que você tomou na Prática 1 e o motivo.
-//      R: Modelei `criadoEm` como `string` (não `Date`), pois uma API
-//      JSON normalmente serializa datas como texto em formato ISO, e é
-//      esse o formato que a camada de dados vai receber de verdade.
+//      R: Botei criadoEm como string na Prática 1 porque API não manda
+//      Date, manda string ISO mesmo, tipo "2026-01-15T12:00:00.000Z".
 // ------------------------------------------------------------
 
 import type { Pet } from './types/pet';
