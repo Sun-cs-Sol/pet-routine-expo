@@ -23,9 +23,9 @@
 //   PortePet       → pequeno, medio, grande
 //   StatusPasseio  → pendente, concluido, cancelado
 // ============================================================
-export type EspeciePet = /* … */ never;
-export type PortePet = /* … */ never;
-export type StatusPasseio = /* … */ never;
+export type EspeciePet = 'cachorro' | 'gato' | 'ave' | 'outro';
+export type PortePet = 'pequeno' | 'medio' | 'grande';
+export type StatusPasseio = 'pendente' | 'concluido' | 'cancelado';
 
 // ============================================================
 // TODO P1.2 — A entidade completa, como ela virá do servidor um dia.
@@ -34,7 +34,13 @@ export type StatusPasseio = /* … */ never;
 //   na Prática 2.
 // ============================================================
 export interface Pet {
-  /* … */
+  id: string;
+  nome: string;
+  especie: EspeciePet;
+  porte: PortePet;
+  statusPasseio: StatusPasseio;
+  idadeMeses: number;
+  criadoEm: string;
 }
 
 // ============================================================
@@ -46,9 +52,9 @@ export interface Pet {
 //   Dica: os utility types desta prática são `Omit`, `Pick` e `Partial`.
 //   Pergunte-se de QUEM cada um deve derivar — nem sempre é de `Pet`.
 // ============================================================
-export type NovoPet = /* … */ never;
-export type ResumoPet = /* … */ never;
-export type AtualizacaoPet = /* … */ never;
+export type NovoPet = Omit<Pet, 'id' | 'criadoEm' | 'statusPasseio'>;
+export type ResumoPet = Pick<Pet, 'id' | 'nome' | 'especie' | 'statusPasseio'>;
+export type AtualizacaoPet = Partial<Omit<Pet, 'id' | 'criadoEm' | 'statusPasseio'>>;
 
 // ============================================================
 // TODO P1.4 — Rótulos legíveis, com switch exaustivo e SEM `default`.
@@ -56,11 +62,27 @@ export type AtualizacaoPet = /* … */ never;
 //   variante ao union e esquecer de tratá-la aqui. É esse o ponto.
 // ============================================================
 export function rotuloStatusPasseio(status: StatusPasseio): string {
-  /* … */
+  switch (status) {
+    case 'pendente':
+      return 'Pendente';
+    case 'concluido':
+      return 'Concluído';
+    case 'cancelado':
+      return 'Cancelado';
+  }
 }
 
 export function rotuloEspecie(especie: EspeciePet): string {
-  /* … */
+  switch (especie) {
+    case 'cachorro':
+      return 'Cachorro';
+    case 'gato':
+      return 'Gato';
+    case 'ave':
+      return 'Ave';
+    case 'outro':
+      return 'Outro';
+  }
 }
 
 // ============================================================
@@ -100,5 +122,7 @@ void parcial;
 //   Acrescente o campo `microchip: string` à interface `Pet`.
 //   Quantos dos três tipos derivados você precisou editar à mão?
 //
-//   Resposta: ...
+//   Resposta: 0. NovoPet, ResumoPet e AtualizacaoPet são derivados de Pet
+//   com Omit/Pick/Partial, então o novo campo `microchip` se propaga
+//   automaticamente para eles sem edição manual.
 // ============================================================
