@@ -15,118 +15,113 @@
 import { useState } from 'react';
 import { SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { Pet } from './src/types/pet';
+import type { Pet, StatusPasseio } from './src/types/pet';
 import { PETS } from './src/data/pets';
 import { agrupar, filtrarPorNome, type Secao } from './src/lib/agrupar';
 import { ItemPet } from './src/components/item-pet';
 import { ListaVazia } from './src/components/lista-vazia';
 import { TelaRegistro } from './src/screens/tela-registro';
-import { cores, espaco, tipografia } from './src/theme';
+import { cores, espaco, medidas, tipografia } from './src/theme';
+
+const ATRASO_RECARREGAR_MS = 800; // só para o indicador de refresh aparecer
+
+// Toque curto: pendente vira concluído, concluído volta para pendente.
+// Cancelado também vai para concluído — se o pet passeou, o toque registra isso.
+function proximoStatus(status: StatusPasseio): StatusPasseio {
+  return status === 'concluido' ? 'pendente' : 'concluido';
+}
+
+// Não depende de nada da tela, então fica fora do componente e não é recriado a cada render.
+function renderCabecalhoSecao({ section }: { section: Secao }) {
+  return (
+    <Text style={styles.cabecalhoSecao}>
+      {section.title} ({section.data.length})
+    </Text>
+  );
+}
 
 export default function App() {
-  // TODO P3.28: declare os quatro estados da tela:
-  //   const [pets, setPets] = useState<Pet[]>(PETS);
-  //   const [busca, setBusca] = useState('');
-  //   const [atualizando, setAtualizando] = useState(false);
-  //   const [petRegistrando, setPetRegistrando] = useState<string | null>(null);
-  //   petRegistrando guarda o ID do pet sendo registrado, ou null para a lista.
+  const [pets, setPets] = useState<Pet[]>(PETS);
+  const [busca, setBusca] = useState('');
+  const [atualizando, setAtualizando] = useState(false);
+  const [petRegistrando, setPetRegistrando] = useState<string | null>(null);
 
-  // TODO P3.29: alternar status do passeio — array novo, objeto novo. Nada de mutação.
-  //   function alternarStatus(id: string) {
-  //     setPets(anteriores =>
-  //       anteriores.map(p =>
-  //         p.id === id
-  //           ? { ...p, statusPasseio: p.statusPasseio === 'concluido' ? 'pendente' : 'concluido' }
-  //           : p
-  //       )
-  //     );
-  //   }
+  function alternarStatus(id: string) {
+    setPets((anteriores) =>
+      anteriores.map((p) => (p.id === id ? { ...p, statusPasseio: proximoStatus(p.statusPasseio) } : p)),
+    );
+  }
 
-  // TODO P3.30: remover pet — array novo via filter.
-  //   function removerPet(id: string) {
-  //     setPets(anteriores => anteriores.filter(p => p.id !== id));
-  //   }
+  function removerPet(id: string) {
+    setPets((anteriores) => anteriores.filter((p) => p.id !== id));
+  }
 
-  // TODO P3.31: recarregar — simula refresh, volta ao mock e limpa a busca.
-  //   async function recarregar() {
-  //     setAtualizando(true);
-  //     await new Promise(r => setTimeout(r, 800));
-  //     setPets(PETS);
-  //     setBusca('');
-  //     setAtualizando(false);
-  //   }
+  async function recarregar() {
+    setAtualizando(true);
+    await new Promise((resolve) => setTimeout(resolve, ATRASO_RECARREGAR_MS));
+    setPets(PETS);
+    setBusca('');
+    setAtualizando(false);
+  }
 
-  // TODO P3.32: receber o registro de passeio da TelaRegistro.
-  //   function handleRegistro(local?: Pet['local'], fotoUri?: string) {
-  //     if (!petRegistrando) return;
-  //     setPets(anteriores =>
-  //       anteriores.map(p =>
-  //         p.id === petRegistrando
-  //           ? { ...p, statusPasseio: 'concluido' as const, local, fotoUri }
-  //           : p
-  //       )
-  //     );
-  //     setPetRegistrando(null);
-  //   }
+  function handleRegistro(local?: Pet['local'], fotoUri?: string) {
+    setPets((anteriores) =>
+      anteriores.map((p) =>
+        p.id === petRegistrando
+          ? {
+              ...p,
+              statusPasseio: 'concluido',
+              // Se o usuário negou GPS ou câmera agora, mantém o que o pet já tinha.
+              local: local ?? p.local,
+              fotoUri: fotoUri ?? p.fotoUri,
+            }
+          : p,
+      ),
+    );
+    setPetRegistrando(null);
+  }
 
-  // TODO P3.33: renderização condicional — quando petRegistrando não é null,
-  //   mostre a TelaRegistro em vez da lista.
-  //   const petAlvo = pets.find(p => p.id === petRegistrando);
-  //   if (petAlvo) {
-  //     return (
-  //       <TelaRegistro
-  //         pet={petAlvo}
-  //         onSalvar={handleRegistro}
-  //         onCancelar={() => setPetRegistrando(null)}
-  //       />
-  //     );
-  //   }
+  const petAlvo = pets.find((p) => p.id === petRegistrando);
+  if (petAlvo) {
+    return <TelaRegistro pet={petAlvo} onSalvar={handleRegistro} onCancelar={() => setPetRegistrando(null)} />;
+  }
 
-  // TODO P3.34: seções da lista — filtrar E DEPOIS agrupar. A ordem importa.
-  //   const secoes = agrupar(filtrarPorNome(pets, busca));
-  //   Explique no README por que filtrar antes de agrupar.
+  // Filtra primeiro e agrupa depois: assim só entram nas seções os pets que casam
+  // com a busca, e o agrupar já descarta a seção que ficou vazia.
+  const secoes = agrupar(filtrarPorNome(pets, busca));
 
   return (
     <View style={styles.tela}>
       <SectionList<Pet, Secao>
-        sections={/* TODO P3.34 */ [] as Secao[]}
+        sections={secoes}
         keyExtractor={(item) => item.id}
-        // TODO P3.35: configure o SectionList completo:
-        //
-        //   renderItem — use ItemPet com as callbacks:
-        //     renderItem={({ item }) => (
-        //       <ItemPet
-        //         pet={item}
-        //         onAlternar={alternarStatus}
-        //         onRemover={removerPet}
-        //         onRegistrar={(id) => setPetRegistrando(id)}
-        //       />
-        //     )}
-        //     Nota: depende de estado local, então pode ficar inline.
-        //
-        //   renderSectionHeader — Text com o título da seção:
-        //     renderSectionHeader={({ section }) => (
-        //       <Text style={styles.cabecalhoSecao}>{section.title}</Text>
-        //     )}
-        //
-        //   ItemSeparatorComponent ou contentContainerStyle com gap
-        //
-        //   ListEmptyComponent — ListaVazia com o termo de busca:
-        //     ListEmptyComponent={<ListaVazia termoBusca={busca} />}
-        //
-        //   stickySectionHeadersEnabled={true}
-        //
-        //   refreshing={atualizando}
-        //   onRefresh={recarregar}
+        // Usa as funções de estado da tela, por isso fica aqui dentro.
+        renderItem={({ item }) => (
+          <ItemPet pet={item} onAlternar={alternarStatus} onRemover={removerPet} onRegistrar={setPetRegistrando} />
+        )}
+        renderSectionHeader={renderCabecalhoSecao}
+        stickySectionHeadersEnabled
+        ListEmptyComponent={<ListaVazia termoBusca={busca} />}
+        refreshing={atualizando}
+        onRefresh={recarregar}
+        // Elemento, não função: assim o TextInput não é recriado a cada letra e não perde o foco.
         ListHeaderComponent={
           <View style={styles.cabecalho}>
-            {/* TODO P3.36: TextInput de busca.
-                  value={busca}
-                  onChangeText={setBusca}
-                  placeholder="Buscar pet por nome..."
-                  style={styles.busca} */}
+            <Text style={tipografia.titulo}>Meus pets</Text>
+            <TextInput
+              value={busca}
+              onChangeText={setBusca}
+              placeholder="Buscar pet por nome..."
+              placeholderTextColor={cores.textoFraco}
+              autoCorrect={false}
+              clearButtonMode="while-editing"
+              accessibilityLabel="Buscar pet por nome"
+              style={styles.busca}
+            />
+            <Text style={tipografia.legenda}>Toque no card para alternar o passeio. Segure para remover.</Text>
           </View>
         }
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.conteudo}
       />
     </View>
@@ -136,11 +131,11 @@ export default function App() {
 const styles = StyleSheet.create({
   tela: {
     flex: 1,
-    paddingTop: 48,
+    paddingTop: medidas.topoTela,
     backgroundColor: cores.fundo,
   },
   cabecalho: {
-    paddingHorizontal: espaco.md,
+    gap: espaco.sm,
     paddingBottom: espaco.sm,
   },
   conteudo: {
@@ -149,17 +144,17 @@ const styles = StyleSheet.create({
     paddingBottom: espaco.lg,
   },
   cabecalhoSecao: {
-    ...tipografia.titulo,
+    ...tipografia.subtitulo,
     backgroundColor: cores.fundo,
     paddingVertical: espaco.sm,
-    paddingHorizontal: espaco.md,
   },
   busca: {
     borderWidth: 1,
     borderColor: cores.textoFraco,
-    borderRadius: espaco.sm,
+    borderRadius: medidas.raio,
     padding: espaco.sm,
     fontSize: tipografia.corpo.fontSize,
+    color: cores.texto,
     backgroundColor: cores.cartao,
   },
 });

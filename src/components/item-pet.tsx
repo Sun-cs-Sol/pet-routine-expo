@@ -8,7 +8,8 @@
 // ============================================================
 import { Pressable, StyleSheet } from 'react-native';
 
-import type { Pet } from '../types/pet';
+import { type Pet, rotuloStatusPasseio } from '../types/pet';
+import { toque } from '../theme';
 import { CardPet } from './card-pet';
 
 type ItemPetProps = {
@@ -21,37 +22,28 @@ type ItemPetProps = {
 export function ItemPet({ pet, onAlternar, onRemover, onRegistrar }: ItemPetProps) {
   return (
     <Pressable
-      // TODO P3.6: toque curto alterna o status do passeio; toque longo remove.
-      //   onPress={() => onAlternar(pet.id)}
-      //   onLongPress={() => onRemover(pet.id)}
-      //
-      // TODO P3.7: acessibilidade — papel e rótulo.
-      //   accessibilityRole="button"
-      //   accessibilityLabel={`${pet.nome}, toque para alternar passeio`}
-      //
-      // TODO P3.8: hitSlop e unstable_pressDelay.
-      //   hitSlop amplia a área de toque sem mudar o visual — útil em itens pequenos.
-      //   unstable_pressDelay evita feedback visual ao rolar a lista.
-      //   Justifique cada valor num comentário.
-      style={({ pressed }) => [
-        styles.item,
-        // TODO P3.9: feedback visual quando pressed.
-        //   Ex: pressed && { opacity: 0.7 }
-      ]}
+      onPress={() => onAlternar(pet.id)}
+      onLongPress={() => onRemover(pet.id)}
+      accessibilityRole="button"
+      accessibilityLabel={`${pet.nome}, passeio ${rotuloStatusPasseio(pet.statusPasseio).toLowerCase()}`}
+      accessibilityHint="Toque para alternar o passeio. Toque longo para remover da lista."
+      // O card já é grande, então a folga é só vertical e cobre metade do gap entre
+      // itens: tocar no espaço entre dois cards ainda acerta o mais próximo.
+      hitSlop={{ top: toque.folgaItem, bottom: toque.folgaItem }}
+      // Sem esse atraso, começar a rolar a lista em cima de um card faz ele piscar.
+      unstable_pressDelay={toque.atrasoPressMs}
+      style={({ pressed }) => [styles.item, pressed && styles.pressionado]}
     >
-      {/* TODO P3.10: reaproveite o CardPet aqui dentro.
-                Passe pet e aoRegistrarPasseio={() => onRegistrar(pet.id)}.
-                O Text onPress do CardPet NÃO conflita com o Pressable:
-                eventos de Text não borbulham para o Pressable pai. */}
+      <CardPet pet={pet} aoRegistrarPasseio={() => onRegistrar(pet.id)} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   item: {
-    // TODO P3.11: SEM margin aqui.
-    //   O espaço entre itens vem de gap no contentContainerStyle
-    //   ou de ItemSeparatorComponent. Margin num item de lista
-    //   é o antipadrão que esta prática ensina a evitar.
+    // Sem margin: o espaço entre itens vem do gap no contentContainerStyle da lista.
+  },
+  pressionado: {
+    opacity: toque.opacidadePressionado,
   },
 });

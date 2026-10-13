@@ -8,28 +8,21 @@
 // tudo vem daqui.
 //
 // Regra: `as const` AQUI, nunca dentro de `StyleSheet.create`.
-//
-// ⚠️  Preencha este arquivo PRIMEIRO — os demais dependem dele.
 // ============================================================
 
 export const cores = {
   fundo: '#FEF7EE',
   cartao: '#FFFFFF',
-  // TODO P2.1: complete com pelo menos mais cinco tokens de cor:
-  //   texto, textoFraco, primaria, sucesso, erro.
-  //   Escolha cores que façam sentido para um app de pets.
-  //   Exemplo: primaria poderia ser um laranja acolhedor.
   texto: '#333333',
   textoFraco: '#777777',
+  textoSobrePrimaria: '#FFFFFF',
   primaria: '#FF8C00',
   sucesso: '#4CAF50',
   erro: '#F44336',
+  placeholderFoto: '#F1E4D3',
 } as const;
 
 export const espaco = {
-  // TODO P2.2: escala de no mínimo 4 degraus (xs, sm, md, lg).
-  //   Escolha uma progressão consistente — 4/8/16/24 é um bom default.
-  //   Exemplo: xs: 4, sm: 8, md: 16, lg: 24
   xs: 4,
   sm: 8,
   md: 16,
@@ -38,18 +31,30 @@ export const espaco = {
 } as const;
 
 export const tipografia = {
-  // TODO P2.3: titulo, corpo, legenda. Cada um é um objeto de estilo
-  //   de TEXTO (fontSize, fontWeight, color).
-  //   A legenda pode reaproveitar `cores.textoFraco`.
-  //   Não inclua layout (margin, padding) — isso é decisão do componente.
-  //
-  //   Exemplo de formato:
-  //   titulo: { fontSize: 20, fontWeight: '600' as const, color: cores.texto },
-  titulo: { fontSize: 24, fontWeight: '600' as const, color: '#333333' },
-  corpo: { fontSize: 16, fontWeight: '400' as const, color: '#333333' },
-  legenda: { fontSize: 12, fontWeight: '400' as const, color: '#777777' },
+  titulo: { fontSize: 24, fontWeight: '600', color: cores.texto },
+  subtitulo: { fontSize: 18, fontWeight: '600', color: cores.texto },
+  corpo: { fontSize: 16, fontWeight: '400', color: cores.texto },
+  legenda: { fontSize: 12, fontWeight: '400', color: cores.textoFraco },
 } as const;
 
-// TODO P2.4: por que este arquivo usa `as const` e o StyleSheet.create
-//   do componente NÃO usa? Responda em um comentário de uma linha aqui.
-// O as const permite inferência de tipos literais fortes para os tokens; StyleSheet.create já retorna tipos válidos pro RN e não precisa de cast literal.
+// Medidas que não são espaçamento, mas também não podem ficar soltas nos componentes.
+export const medidas = {
+  topoTela: 48, // espaço da status bar, já que ainda não usamos safe area
+  raio: 8,
+  miniatura: 120,
+  previaFoto: 200,
+} as const;
+
+export const toque = {
+  opacidadePressionado: 0.7,
+  // ~1 frame de toque parado antes de mostrar o "pressed". Se o dedo começa a
+  // rolar a lista nesse tempo, o item não pisca como se tivesse sido tocado.
+  atrasoPressMs: 100,
+  // Metade do gap entre itens (espaco.sm / 2). Os dois vizinhos dividem o
+  // espaço vazio entre eles: não sobra zona morta e as áreas não se sobrepõem.
+  folgaItem: espaco.sm / 2,
+} as const;
+
+// Por que `as const` aqui e não no StyleSheet.create: aqui ele trava os valores
+// como literais (ex: fontWeight '600' e não string); o StyleSheet.create já tipa
+// cada estilo sozinho, então um `as const` lá dentro não acrescenta nada.

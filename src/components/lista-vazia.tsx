@@ -12,35 +12,43 @@ import { StyleSheet, Text, View } from 'react-native';
 import { cores, espaco, tipografia } from '../theme';
 
 type ListaVaziaProps = {
-  // TODO P3.12: uma prop que permita distinguir "primeiro acesso" de "busca sem resultado".
-  //   Sugestão: termoBusca?: string
-  //   Se termoBusca está definido e não-vazio → "busca sem resultado"
-  //   Senão → "primeiro acesso" (a lista está vazia de verdade)
+  // Vazio ou ausente: a lista está vazia de verdade. Preenchido: a busca não achou nada.
+  termoBusca?: string;
 };
 
-export function ListaVazia(/* TODO P3.12: desestruture a prop */) {
-  // TODO P3.13: dois textos diferentes, conforme o cenário.
-  //   Primeiro acesso: "Nenhum pet cadastrado. Que tal adicionar um?"
-  //   Busca sem resultado: "Nenhum pet encontrado para '${termoBusca}'."
-  //   A frase da busca MENCIONA o termo procurado.
-  //   As duas frases são DIFERENTES — repetir a mesma é erro.
+export function ListaVazia({ termoBusca = '' }: ListaVaziaProps) {
+  const termo = termoBusca.trim();
+
+  if (termo !== '') {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.titulo}>Nenhum pet chamado "{termo}"</Text>
+        <Text style={styles.texto}>Confira se o nome está certo ou apague a busca para ver todos.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.texto}>
-        {/* TODO P3.13 */}
-      </Text>
+      <Text style={styles.titulo}>Sua lista de pets está vazia</Text>
+      <Text style={styles.texto}>Puxe a lista para baixo para carregar os pets de novo.</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    // TODO P3.14: centralize e use padding generoso (espaco.lg ou xl)
-    alignItems: 'center' as const,
+    alignItems: 'center',
+    padding: espaco.xl,
+    gap: espaco.sm,
+  },
+  titulo: {
+    ...tipografia.subtitulo,
+    textAlign: 'center',
   },
   texto: {
     ...tipografia.corpo,
     color: cores.textoFraco,
-    textAlign: 'center' as const,
+    textAlign: 'center',
   },
 });
