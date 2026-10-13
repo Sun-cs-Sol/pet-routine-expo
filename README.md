@@ -2,6 +2,7 @@
 
 **Disciplina:** Desenvolvimento Mobile (2026.2.DM) — CESAR School
 **Branch:** `feature/ads025_2026-2`
+**Autoria da Prática 3:** Ana Sofia
 
 ## Sobre o projeto
 

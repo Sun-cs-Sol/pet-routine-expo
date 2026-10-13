@@ -1,5 +1,7 @@
 # Auditoria — TelaPasseio
 
+**Autoria:** Ana Sofia
+
 ## 1. Problemas de permissão
 
 | # | Sintoma para o usuário | Causa no código | Correção |

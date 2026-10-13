@@ -1,5 +1,7 @@
 # Auditoria de lista — TelaPets
 
+**Autoria:** Ana Sofia
+
 ## 1. Problemas encontrados
 
 | # | Trecho | Problema | Sintoma para o usuário | Correção |
